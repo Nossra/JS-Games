@@ -1,0 +1,131 @@
+<html>
+	<head>
+		
+	</head>
+	<body>
+		<canvas id="myCanvas" width="500" height="400" style="border:1px solid #d3d3d3;"></canvas>
+
+		<script>
+			var canvas = document.getElementById("myCanvas");
+			var ctx = canvas.getContext("2d");
+
+			//player variables
+			var playerHeight = 20;
+			var playerWidth = 20;
+			var playerX = (canvas.width-playerWidth)/2;
+			var playerY = (canvas.height-playerHeight)-20;
+
+			//movement variables
+			var x = canvas.width/2;
+			var y = canvas.height-30
+			var dx = 2;
+			var dy = -2;
+			var right = false;
+			var left = false;
+
+			//bullet variables 
+			var bulletX = playerX+(playerWidth/2);
+			var bulletY = playerY;
+			var bulletSize = 2;
+
+			//bullet movement
+			var bulletPos = bulletY;
+
+			//enemy variables
+			var enemyColumnCount = 8;
+			var enemyRowCount = 3;
+			var enemyWidth = 20;
+			var enemyHeight = 20;
+			var enemyPadding = 20;
+			var enemyOffsetTop = 50;
+			var enemyOffsetLeft = ((canvas.width-(enemyWidth*enemyColumnCount))-enemyPadding*enemyColumnCount)/2;
+
+			//enemy objects
+			var enemies = [] 
+				for (c = 0; c < enemyColumnCount; c++) {
+					enemies[c] = [];
+					for (r = 0; r < enemyRowCount; r++) {
+						enemies[c][r] = {x: 0, y: 0};
+					}
+				}
+
+			//movement handling
+			document.addEventListener("keydown", keyDownHandler, false);
+			document.addEventListener("keyup", keyUpHandler, false);
+
+			function keyUpHandler(e) {
+			    if(e.keyCode == 39) {
+			        right = false;
+			    } else if(e.keyCode == 37) {
+			        left = false;
+			    }
+			}
+
+			function keyDownHandler(e) {
+			    if(e.keyCode == 39) {
+			        right = true;
+			    } else if(e.keyCode == 37) {
+			        left = true;
+			    } else if(e.keyCode == 13) {
+			    	bulletPos = bulletY;
+			    	setInterval(drawBullet,10);
+			    }
+
+			}
+
+			function drawBullet() {
+				bulletPos -= 3;
+				ctx.beginPath();
+				ctx.arc(bulletX, bulletPos, bulletSize, 0, 2*Math.PI);
+				ctx.fillStyle = "black";
+				ctx.fill();
+				ctx.closePath();
+
+			}
+
+			function drawPlayer() {
+				ctx.beginPath();
+				ctx.rect(playerX, playerY, playerWidth, playerHeight);
+				ctx.stroke();
+				ctx.closePath();
+			}
+
+			function drawEnemies() {
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+						var enemyX = (c * (enemyWidth + enemyPadding)) + enemyOffsetLeft;
+						var enemyY = (r * (enemyHeight + enemyPadding)) + enemyOffsetTop;
+						enemies[c][r].x = enemyX;
+						enemies[c][r].y = enemyY;
+
+						ctx.beginPath();
+						ctx.rect(enemyX, enemyY, enemyWidth, enemyHeight);
+						ctx.fillStyle = "black";
+						ctx.fill();
+						ctx.closePath();
+					}
+				}
+			}
+			
+			function move() {
+				if(right && playerX < canvas.width-playerWidth) {
+			        playerX += 7;
+			    } else if(left && playerX > 0) {
+			        playerX -= 7;
+			    }
+			    
+			    x += dx;
+			    y += dy;
+			}
+
+			function main() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				drawPlayer();
+				drawEnemies();
+				move();				
+			}
+
+			setInterval(main,10); //TODO: change to an animation line instead for fluent transitions
+		</script>
+	</body>
+</html>
