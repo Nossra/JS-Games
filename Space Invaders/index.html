@@ -3,9 +3,14 @@
 		
 	</head>
 	<body>
-		<canvas id="myCanvas" width="500" height="400" style="border:1px solid #d3d3d3;"></canvas>
+		<canvas id="myCanvas" width="500" height="400" style="border:2px solid black;"></canvas>
 
 		<script>
+			/*KNOWN BUGS
+			 * If you fire at the far left corner, the enemies left counter goes down for some reason. It can remove up to 6 in that counter.
+			 * the first middle breakable wall in the middle column breaks on only two hits. None of the others have this problem
+			 */
+
 			var canvas = document.getElementById("myCanvas");
 			var ctx = canvas.getContext("2d");
 
@@ -28,7 +33,6 @@
 			var bulletY = playerY;
 			var bulletSize = 3;
 			var gunIsLoaded = true;
-			var reloadTimer = 1000; //milliseconds
 
 			//bullet movement
 			var bulletPos = bulletY;
@@ -42,13 +46,14 @@
 			var enemyPadding = 5;
 			var enemyOffsetTop = 50;
 			var enemyOffsetLeft = ((canvas.width-(enemyWidth*enemyColumnCount))-enemyPadding*enemyColumnCount)/2;
+			var enemiesLeft = 9 * 3;
 
 			//enemy objects
 			var enemies = [];
 			for (c = 0; c < enemyColumnCount; c++) {
 				enemies[c] = [];
 				for (r = 0; r < enemyRowCount; r++) {
-					enemies[c][r] = {x: 0, y: 0};
+					enemies[c][r] = {x: 0, y: 0, status: 1};
 				}
 			}
 
@@ -57,7 +62,7 @@
 			var breakableRowCount = 2;
 			var breakableWidth = 20;
 			var breakableHeight = 10;
-			var breakablePadding = 1;
+			var breakablePadding = 0;
 			var breakableOffsetTop = canvas.height - (breakableRowCount * breakableHeight) - (breakablePadding * breakableRowCount) - 60;
 			var breakableOffsetLeft = ((canvas.width - (breakableWidth * breakableColCount)) - breakablePadding*enemyColumnCount)/2;
 
@@ -66,7 +71,7 @@
 			for (c = 0; c < breakableColCount; c++) {
 				breakable[c] = [];
 				for (r = 0; r < breakableRowCount; r++) {
-					breakable[c][r] = {x: 0, y: 0};
+					breakable[c][r] = {x: 0, y: 0, status: 3};
 				}
 			}
 
@@ -98,8 +103,13 @@
 			    }
 			}
 
-			function drawBullet() {
+			function drawEnemyBoard() {
+				ctx.font = "16px Consolas";
+				ctx.fillStyle = "black";
+				ctx.fillText("Enemies left: " + enemiesLeft, 20, 30); 
+			}
 
+			function drawBullet() {
 				ctx.beginPath();
 				ctx.arc(bulletX, bulletPos, bulletSize, 0, 2*Math.PI);
 				ctx.fillStyle = "black";
@@ -121,22 +131,24 @@
 			function drawEnemies() {
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
-						var enemyX = (c * (enemyWidth + enemyPadding)) + enemyOffsetLeft;
-						var enemyY = (r * (enemyHeight + enemyPadding)) + enemyOffsetTop;
+						if (enemies[c][r].status == 1) {
+							var enemyX = (c * (enemyWidth + enemyPadding)) + enemyOffsetLeft;
+							var enemyY = (r * (enemyHeight + enemyPadding)) + enemyOffsetTop;
 
-						//clustering by removing spares
-						if (c == 3 || c == 7) {
-							continue;
-						}
+							//clustering by removing spares
+							if (c == 3 || c == 7) {
+								continue;
+							}
 
-						enemies[c][r].x = enemyX;
-						enemies[c][r].y = enemyY;
+							enemies[c][r].x = enemyX;
+							enemies[c][r].y = enemyY;
 
-						ctx.beginPath();
-						ctx.rect(enemyX, enemyY, enemyWidth, enemyHeight);
-						ctx.fillStyle = "black";
-						ctx.fill();
-						ctx.closePath();
+							ctx.beginPath();
+							ctx.rect(enemyX, enemyY, enemyWidth, enemyHeight);
+							ctx.fillStyle = "black";
+							ctx.fill();
+							ctx.closePath();
+						}						
 					}
 				}
 			}
@@ -144,27 +156,28 @@
 			function drawBreakableWalls() {
 				for (c = 0; c < breakableColCount; c++) {
 					for (r = 0; r < breakableRowCount; r++) {
+						if (breakable[c][r].status > 0) {
+							var breakableX = (c * (breakableWidth + breakablePadding)) + breakableOffsetLeft;
+							var breakableY = (r * (breakableHeight + breakablePadding)) + breakableOffsetTop;
 
-						var breakableX = (c * (breakableWidth + breakablePadding)) + breakableOffsetLeft;
-						var breakableY = (r * (breakableHeight + breakablePadding)) + breakableOffsetTop;
+							//cluster them into three by removing columns 3,4,8 and 9. Ugly bruteforced solution but it works :D
+							if (c == 3 || c == 4 || c == 8 || c == 9) {
+								continue;
+							}
 
-						//cluster them into three by removing columns 3,4,8 and 9. Ugly bruteforced solution but it works :D
-						if (c == 3 || c == 4 || c == 8 || c == 9) {
-							continue;
+							breakable[c][r].x = breakableX;
+							breakable[c][r].y = breakableY;
+
+							ctx.beginPath();
+							ctx.rect(breakableX, breakableY, breakableWidth, breakableHeight);
+							ctx.fillStyle = "black";
+							ctx.fill();
+							ctx.closePath();
 						}
-
-						breakable[c][r].x = breakableX;
-						breakable[c][r].y = breakableY;
-
-						ctx.beginPath();
-						ctx.rect(breakableX, breakableY, breakableWidth, breakableHeight);
-						ctx.fillStyle = "black";
-						ctx.fill();
-						ctx.closePath();
 					}
 				}
 			}
-			
+
 			function move() {
 				if(right && playerX < canvas.width-playerWidth) {
 			        playerX += 7;
@@ -176,6 +189,47 @@
 			    y += dy;
 			}
 
+			function enemyFire() {
+
+			}
+
+			function playerCollisionDetection() {
+
+			}
+
+			function enemyCollisionDetection() {
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+						var e = enemies[c][r];
+		       	     	if (e.status == 1) {
+		       	     		if(bulletX > e.x && bulletX < e.x + enemyWidth && bulletPos > e.y && bulletPos < e.y + enemyHeight) {
+				            	//ctx.clearRect(0, 0, canvas.width, canvas.height); //Cool blinking effect on hit
+				            	bulletX = 10000000; //weird solution to make it look like the shot disappears o_0
+				            	e.status--;
+				            	enemiesLeft--;
+				            	if (enemiesLeft == 0) {
+				            		alert("lol u won");
+				            	}
+			            	}
+		       	     	}
+					}
+				}
+			}
+
+			function breakableCollisionDetection() {
+				for (c = 0; c < breakableColCount; c++) {
+					for (r = 0; r < breakableRowCount; r++) {
+						var b = breakable[c][r];
+		       	     	if (b.status > 0) {
+		       	     		if(bulletX > b.x && bulletX < b.x + breakableWidth && bulletPos > b.y && bulletPos < b.y + breakableHeight) {
+			            		bulletX = 10000000;
+			            		b.status--; 
+			            	}
+		       	     	}
+					}
+				}
+			}
+
 			function main() {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				bulletPos -= bulletSpeed;
@@ -183,7 +237,14 @@
 				drawPlayer();
 				drawEnemies();
 				drawBreakableWalls();
+				enemyFire();
+
 				move();	
+				playerCollisionDetection();
+				enemyCollisionDetection();
+				breakableCollisionDetection();
+
+				drawEnemyBoard();
 				
 				requestAnimationFrame(main);			
 			}
