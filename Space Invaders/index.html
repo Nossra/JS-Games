@@ -45,15 +45,25 @@
 			var enemyHeight = 30;
 			var enemyPadding = 5;
 			var enemyOffsetTop = 50;
-			var enemyOffsetLeft = ((canvas.width-(enemyWidth*enemyColumnCount))-enemyPadding*enemyColumnCount)/2;
+			var enemyOffsetLeft = ((canvas.width - (enemyWidth * enemyColumnCount)) - enemyPadding * enemyColumnCount)/2;
 			var enemiesLeft = 9 * 3;
+			var enemyReloadSpeed = 200;
 
 			//enemy objects
 			var enemies = [];
 			for (c = 0; c < enemyColumnCount; c++) {
 				enemies[c] = [];
 				for (r = 0; r < enemyRowCount; r++) {
-					enemies[c][r] = {x: 0, y: 0, status: 1};
+					enemies[c][r] = {
+						x: 0,
+						y: 0,
+						status: 1,
+						bulletX: ((c * (enemyWidth + enemyPadding)) + enemyOffsetLeft+playerWidth/2),
+						bulletY: ((r * (enemyHeight + enemyPadding)) + enemyOffsetTop)+playerHeight,
+						fire: true,
+						temp: bulletY,
+						reloaded: true
+					};
 				}
 			}
 
@@ -62,7 +72,7 @@
 			var breakableRowCount = 2;
 			var breakableWidth = 20;
 			var breakableHeight = 10;
-			var breakablePadding = 0;
+			var breakablePadding = 1;
 			var breakableOffsetTop = canvas.height - (breakableRowCount * breakableHeight) - (breakablePadding * breakableRowCount) - 60;
 			var breakableOffsetLeft = ((canvas.width - (breakableWidth * breakableColCount)) - breakablePadding*enemyColumnCount)/2;
 
@@ -71,7 +81,11 @@
 			for (c = 0; c < breakableColCount; c++) {
 				breakable[c] = [];
 				for (r = 0; r < breakableRowCount; r++) {
-					breakable[c][r] = {x: 0, y: 0, status: 3};
+					breakable[c][r] = {
+						x: 0, 
+						y: 0, 
+						status: 3
+					};
 				}
 			}
 
@@ -96,7 +110,7 @@
 			    	if (gunIsLoaded) {
 			    		bulletX = playerX+(playerWidth/2);
 				    	bulletPos = bulletY;
-			    		setInterval(drawBullet,10);	
+			    		setInterval(drawPlayerBullet,10);	
 			    		gunIsLoaded = false;
 			    		setTimeout(reloadGun, 700);
 			    	}
@@ -109,7 +123,7 @@
 				ctx.fillText("Enemies left: " + enemiesLeft, 20, 30); 
 			}
 
-			function drawBullet() {
+			function drawPlayerBullet() {
 				ctx.beginPath();
 				ctx.arc(bulletX, bulletPos, bulletSize, 0, 2*Math.PI);
 				ctx.fillStyle = "black";
@@ -132,23 +146,54 @@
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
 						if (enemies[c][r].status == 1) {
+							if (c == 3 || c == 7) continue; 
 							var enemyX = (c * (enemyWidth + enemyPadding)) + enemyOffsetLeft;
 							var enemyY = (r * (enemyHeight + enemyPadding)) + enemyOffsetTop;
-
-							//clustering by removing spares
-							if (c == 3 || c == 7) {
-								continue;
-							}
-
 							enemies[c][r].x = enemyX;
 							enemies[c][r].y = enemyY;
-
 							ctx.beginPath();
 							ctx.rect(enemyX, enemyY, enemyWidth, enemyHeight);
 							ctx.fillStyle = "black";
 							ctx.fill();
-							ctx.closePath();
-						}						
+							ctx.closePath();						
+						}	
+
+					}
+				}
+			}
+
+			function enemyFire(rc, rr) {
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+						if (enemies[rc][rr].status == 1) {
+							if (enemies[rc][rr].reloaded) {
+					    		//enemies[rc][rr].bulletX = ((c * (enemyWidth + enemyPadding)) + enemyOffsetLeft+playerWidth/2);
+					    		enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
+								requestAnimationFrame(drawEnemyBullet);
+								enemies[rc][rr].reloaded = false;
+								setTimeout(reloadEnemyGun, 10);
+							}	
+						}
+					}
+				}		
+			}
+
+			function drawEnemyBullet() {
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+						if (c == 3 || c == 7) continue;
+						ctx.beginPath();
+						ctx.arc(enemies[c][r].bulletX, enemies[c][r].temp, bulletSize, 0, 2*Math.PI); //bulletY isnt resetting so they can only shoot once atm
+						ctx.fillStyle = "black";
+						ctx.fill();
+						ctx.closePath();
+					}
+				}
+			}
+			function reloadEnemyGun() {
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+						enemies[c][r].reloaded = true;
 					}
 				}
 			}
@@ -157,17 +202,12 @@
 				for (c = 0; c < breakableColCount; c++) {
 					for (r = 0; r < breakableRowCount; r++) {
 						if (breakable[c][r].status > 0) {
+							//cluster them into three by removing columns 3,4,8 and 9. Ugly bruteforced solution but it works :D
+							if (c == 3 || c == 4 || c == 8 || c == 9) continue;
 							var breakableX = (c * (breakableWidth + breakablePadding)) + breakableOffsetLeft;
 							var breakableY = (r * (breakableHeight + breakablePadding)) + breakableOffsetTop;
-
-							//cluster them into three by removing columns 3,4,8 and 9. Ugly bruteforced solution but it works :D
-							if (c == 3 || c == 4 || c == 8 || c == 9) {
-								continue;
-							}
-
 							breakable[c][r].x = breakableX;
 							breakable[c][r].y = breakableY;
-
 							ctx.beginPath();
 							ctx.rect(breakableX, breakableY, breakableWidth, breakableHeight);
 							ctx.fillStyle = "black";
@@ -189,15 +229,17 @@
 			    y += dy;
 			}
 
-			function enemyFire() {
+
+
+			function enemyCollisionBreakable() {
 
 			}
 
-			function playerCollisionDetection() {
+			function enemyCollisionPlayer() {
 
 			}
 
-			function enemyCollisionDetection() {
+			function playerCollisionEnemy() {
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
 						var e = enemies[c][r];
@@ -216,7 +258,7 @@
 				}
 			}
 
-			function breakableCollisionDetection() {
+			function playerCollisionBreakable() {
 				for (c = 0; c < breakableColCount; c++) {
 					for (r = 0; r < breakableRowCount; r++) {
 						var b = breakable[c][r];
@@ -232,24 +274,40 @@
 
 			function main() {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				bulletPos -= bulletSpeed;
+				//player bullet movement
+				bulletPos -= bulletSpeed; 
+				//enemy bullet movement
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+						if (enemies[c][r].fire) {
+								enemies[c][r].temp += bulletSpeed;
+						}
+					}
+				}
 
 				drawPlayer();
 				drawEnemies();
 				drawBreakableWalls();
-				enemyFire();
-
+				drawEnemyBullet();
 				move();	
-				playerCollisionDetection();
-				enemyCollisionDetection();
-				breakableCollisionDetection();
+				enemyCollisionBreakable();
+				enemyCollisionPlayer();
+				playerCollisionEnemy();
+				playerCollisionBreakable();
 
 				drawEnemyBoard();
 				
-				requestAnimationFrame(main);			
+				requestAnimationFrame(main);	
+
 			}
 
 			main();
+			setInterval(function() { 
+				var rc = Math.floor((Math.random() * enemyColumnCount) + 1);
+				var rr = Math.floor((Math.random() * enemyRowCount) + 1);		
+				enemyFire(rc, rr);
+			},enemyReloadSpeed);
+
 		</script>
 	</body>
 </html>
