@@ -35,11 +35,11 @@
 			var bulletSpeed = 9
 
 			//enemy variables
-			var enemyColumnCount = 8;
+			var enemyColumnCount = 11;
 			var enemyRowCount = 3;
 			var enemyWidth = 30;
 			var enemyHeight = 30;
-			var enemyPadding = 20;
+			var enemyPadding = 5;
 			var enemyOffsetTop = 50;
 			var enemyOffsetLeft = ((canvas.width-(enemyWidth*enemyColumnCount))-enemyPadding*enemyColumnCount)/2;
 
@@ -53,18 +53,17 @@
 			}
 
 			//breakable wall variables
-			var breakableColCount = 9;
+			var breakableColCount = 13;
 			var breakableRowCount = 2;
 			var breakableWidth = 20;
 			var breakableHeight = 10;
-			var breakablePadding = 5;
+			var breakablePadding = 1;
 			var breakableOffsetTop = canvas.height - (breakableRowCount * breakableHeight) - (breakablePadding * breakableRowCount) - 60;
 			var breakableOffsetLeft = ((canvas.width - (breakableWidth * breakableColCount)) - breakablePadding*enemyColumnCount)/2;
 
 			//breakable objects
 			var breakable = [];
 			for (c = 0; c < breakableColCount; c++) {
-				//if (c == 3 || c == 6) breakableOffsetLeft += 50;
 				breakable[c] = [];
 				for (r = 0; r < breakableRowCount; r++) {
 					breakable[c][r] = {x: 0, y: 0};
@@ -124,6 +123,12 @@
 					for (r = 0; r < enemyRowCount; r++) {
 						var enemyX = (c * (enemyWidth + enemyPadding)) + enemyOffsetLeft;
 						var enemyY = (r * (enemyHeight + enemyPadding)) + enemyOffsetTop;
+
+						//clustering by removing spares
+						if (c == 3 || c == 7) {
+							continue;
+						}
+
 						enemies[c][r].x = enemyX;
 						enemies[c][r].y = enemyY;
 
@@ -139,8 +144,14 @@
 			function drawBreakableWalls() {
 				for (c = 0; c < breakableColCount; c++) {
 					for (r = 0; r < breakableRowCount; r++) {
+
 						var breakableX = (c * (breakableWidth + breakablePadding)) + breakableOffsetLeft;
 						var breakableY = (r * (breakableHeight + breakablePadding)) + breakableOffsetTop;
+
+						//cluster them into three by removing columns 3,4,8 and 9. Ugly bruteforced solution but it works :D
+						if (c == 3 || c == 4 || c == 8 || c == 9) {
+							continue;
+						}
 
 						breakable[c][r].x = breakableX;
 						breakable[c][r].y = breakableY;
