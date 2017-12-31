@@ -10,8 +10,8 @@
 			var ctx = canvas.getContext("2d");
 
 			//player variables
-			var playerHeight = 20;
-			var playerWidth = 20;
+			var playerHeight = 30;
+			var playerWidth = 30;
 			var playerX = (canvas.width-playerWidth)/2;
 			var playerY = (canvas.height-playerHeight)-20;
 
@@ -26,28 +26,50 @@
 			//bullet variables 
 			var bulletX = playerX+(playerWidth/2);
 			var bulletY = playerY;
-			var bulletSize = 2;
+			var bulletSize = 3;
+			var gunIsLoaded = true;
+			var reloadTimer = 1000; //milliseconds
 
 			//bullet movement
 			var bulletPos = bulletY;
+			var bulletSpeed = 9
 
 			//enemy variables
 			var enemyColumnCount = 8;
 			var enemyRowCount = 3;
-			var enemyWidth = 20;
-			var enemyHeight = 20;
+			var enemyWidth = 30;
+			var enemyHeight = 30;
 			var enemyPadding = 20;
 			var enemyOffsetTop = 50;
 			var enemyOffsetLeft = ((canvas.width-(enemyWidth*enemyColumnCount))-enemyPadding*enemyColumnCount)/2;
 
 			//enemy objects
-			var enemies = [] 
-				for (c = 0; c < enemyColumnCount; c++) {
-					enemies[c] = [];
-					for (r = 0; r < enemyRowCount; r++) {
-						enemies[c][r] = {x: 0, y: 0};
-					}
+			var enemies = [];
+			for (c = 0; c < enemyColumnCount; c++) {
+				enemies[c] = [];
+				for (r = 0; r < enemyRowCount; r++) {
+					enemies[c][r] = {x: 0, y: 0};
 				}
+			}
+
+			//breakable wall variables
+			var breakableColCount = 9;
+			var breakableRowCount = 2;
+			var breakableWidth = 20;
+			var breakableHeight = 10;
+			var breakablePadding = 5;
+			var breakableOffsetTop = canvas.height - (breakableRowCount * breakableHeight) - (breakablePadding * breakableRowCount) - 60;
+			var breakableOffsetLeft = ((canvas.width - (breakableWidth * breakableColCount)) - breakablePadding*enemyColumnCount)/2;
+
+			//breakable objects
+			var breakable = [];
+			for (c = 0; c < breakableColCount; c++) {
+				//if (c == 3 || c == 6) breakableOffsetLeft += 50;
+				breakable[c] = [];
+				for (r = 0; r < breakableRowCount; r++) {
+					breakable[c][r] = {x: 0, y: 0};
+				}
+			}
 
 			//movement handling
 			document.addEventListener("keydown", keyDownHandler, false);
@@ -66,21 +88,28 @@
 			        right = true;
 			    } else if(e.keyCode == 37) {
 			        left = true;
-			    } else if(e.keyCode == 13) {
-			    	bulletPos = bulletY;
-			    	setInterval(drawBullet,10);
+			    } else if(e.keyCode == 32) {
+			    	if (gunIsLoaded) {
+			    		bulletX = playerX+(playerWidth/2);
+				    	bulletPos = bulletY;
+			    		setInterval(drawBullet,10);	
+			    		gunIsLoaded = false;
+			    		setTimeout(reloadGun, 700);
+			    	}
 			    }
-
 			}
 
 			function drawBullet() {
-				bulletPos -= 3;
+
 				ctx.beginPath();
 				ctx.arc(bulletX, bulletPos, bulletSize, 0, 2*Math.PI);
 				ctx.fillStyle = "black";
 				ctx.fill();
 				ctx.closePath();
+			}
 
+			function reloadGun() {
+				gunIsLoaded = true;
 			}
 
 			function drawPlayer() {
@@ -106,6 +135,24 @@
 					}
 				}
 			}
+
+			function drawBreakableWalls() {
+				for (c = 0; c < breakableColCount; c++) {
+					for (r = 0; r < breakableRowCount; r++) {
+						var breakableX = (c * (breakableWidth + breakablePadding)) + breakableOffsetLeft;
+						var breakableY = (r * (breakableHeight + breakablePadding)) + breakableOffsetTop;
+
+						breakable[c][r].x = breakableX;
+						breakable[c][r].y = breakableY;
+
+						ctx.beginPath();
+						ctx.rect(breakableX, breakableY, breakableWidth, breakableHeight);
+						ctx.fillStyle = "black";
+						ctx.fill();
+						ctx.closePath();
+					}
+				}
+			}
 			
 			function move() {
 				if(right && playerX < canvas.width-playerWidth) {
@@ -120,12 +167,17 @@
 
 			function main() {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				bulletPos -= bulletSpeed;
+
 				drawPlayer();
 				drawEnemies();
-				move();				
+				drawBreakableWalls();
+				move();	
+				
+				requestAnimationFrame(main);			
 			}
 
-			setInterval(main,10); //TODO: change to an animation line instead for fluent transitions
+			main();
 		</script>
 	</body>
 </html>
