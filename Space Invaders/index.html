@@ -141,7 +141,6 @@
 					if (gunIsLoaded) {
 						bulletX = playerX+(playerWidth/2);
 						bulletPos = bulletY;
-						setInterval(drawPlayerBullet,10);	
 						gunIsLoaded = false;
 						setTimeout(reloadGun, 700);
 					}
@@ -163,7 +162,7 @@
 			function drawPlayerBullet() {
 				ctx.beginPath();
 				ctx.arc(bulletX, bulletPos, bulletSize, 0, 2*Math.PI);
-				ctx.fillStyle = "black";
+				ctx.fillStyle = "#000000";
 				ctx.fill();
 				ctx.closePath();
 			}
@@ -369,6 +368,7 @@
 				}
 
 				drawPlayer();
+				drawPlayerBullet();
 				drawEnemies();
 				drawBreakableWalls();
 				drawEnemyBullet(); //is buggy but currently required. atm it also creates one shot from all enemies right at the spawn point of the player
