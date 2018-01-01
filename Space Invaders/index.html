@@ -51,6 +51,8 @@
 
 			var enemy_image = new Image();
 			enemy_image.src = "resources/images/space_invader_001.png";
+			var player_image = new Image();
+			player_image.src = "resources/images/space_invader_player.png"
 
 			//enemy objects
 			var enemies = [];
@@ -140,8 +142,9 @@
 
 			function drawPlayer() {
 				ctx.beginPath();
-				ctx.rect(playerX, playerY, playerWidth, playerHeight);
-				ctx.stroke();
+				//ctx.rect(playerX, playerY, playerWidth, playerHeight);
+				//ctx.stroke();
+				ctx.drawImage(player_image, playerX, playerY);
 				ctx.closePath();
 			}
 
