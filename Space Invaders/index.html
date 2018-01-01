@@ -39,7 +39,7 @@
 			var playerWidth = 30;
 			var playerX = (canvas.width-playerWidth)/2;
 			var playerY = (canvas.height-playerHeight)-20;
-			var hull = 3;
+			var hull = 5;
 
 			//movement variables
 			var x = canvas.width/2;
@@ -57,7 +57,7 @@
 
 			//bullet movement
 			var bulletPos = bulletY;
-			var bulletSpeed = 7
+			var bulletSpeed = 9;
 
 			//enemy variables
 			var enemyColumnCount = 11;
@@ -73,10 +73,11 @@
 			var bullets = [];
 			var bullet_id = 0;
 
+			var enemy_image = new Image();
+			enemy_image.src = "resources/images/space_invader_001.png"
+
 			var player_image = new Image();
 			player_image.src = "resources/images/space_invader_player.png"
-
-
 
 			//enemy objects
 			var enemies = [];
@@ -113,7 +114,7 @@
 					breakable[c][r] = {
 						x: 0, 
 						y: 0, 
-						status: 5
+						status: 3
 					};
 				}
 			}
@@ -139,7 +140,6 @@
 					if (gunIsLoaded) {
 						bulletX = playerX+(playerWidth/2);
 						bulletPos = bulletY;
-						setInterval(drawPlayerBullet,10);	
 						gunIsLoaded = false;
 						setTimeout(reloadGun, 700);
 					}
@@ -161,7 +161,7 @@
 			function drawPlayerBullet() {
 				ctx.beginPath();
 				ctx.arc(bulletX, bulletPos, bulletSize, 0, 2*Math.PI);
-				ctx.fillStyle = "black";
+				ctx.fillStyle = "#000000";
 				ctx.fill();
 				ctx.closePath();
 			}
@@ -188,8 +188,6 @@
 							enemies[c][r].x = enemyX;
 							enemies[c][r].y = enemyY;
 
-							var enemy_image = new Image();
-							enemy_image.src = "resources/images/space_invader_001.png"
 							ctx.beginPath();
 							
 							ctx.fillStyle = "black";
@@ -372,6 +370,7 @@
 				}
 
 				drawPlayer();
+				drawPlayerBullet();
 				drawEnemies();
 				drawBreakableWalls();
 				drawEnemyBullet(); //is buggy but currently required. atm it also creates one shot from all enemies right at the spawn point of the player
