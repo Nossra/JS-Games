@@ -71,6 +71,8 @@
 			var enemiesLeft = 9 * 3;
 			var enemyReloadSpeed = 200;
 
+			var bullets = [];
+			var bullet_id = 0;
 
 			var enemy_sprites = [];
 			enemy_sprites[0] = {offset_pixels: {x: 4, y: 7},
@@ -80,9 +82,9 @@
 										[2, 0], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7],
 										[3, 1], [3, 2], [3, 4], [3, 5], [3, 6], [3, 8], // Left eye
 										[4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 8],
-										[5, 2], [5, 3], [5, 4], [5, 5], [5, 6], // Center piece || From now on, we could mirror this.
+										[5, 2], [5, 3], [5, 4], [5, 5], [5, 6], // Center piece || From now on, we could just mirror this.
 										[6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 8],
-										[7, 1], [7, 2], [7, 4], [7, 5], [7, 6], [7, 8], // Left eye
+										[7, 1], [7, 2], [7, 4], [7, 5], [7, 6], [7, 8], // Righ eye
 										[8, 0], [8, 2], [8, 3], [8, 4], [8, 5], [8, 6], [8, 7],
 										[9, 3], [9, 4],
 										[10,4], [10, 5], [10, 6], [10, 7],
@@ -229,7 +231,15 @@
 			function enemyFire(rc, rr) {
 				if (enemies[rc][rr].status == 1) {
 					if (enemies[rc][rr].reloaded) {
-			    		enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
+						// Instead of having a bullet "value" on each enemy object.
+						// We create a array of bullets, where each bullet has a few values.
+						// bullet.x is the X position, bullet.y is the bullet Y position etc.
+						bullets[bullet_id++] = {x: enemies[rc][rr].bulletX,
+													y: enemies[rc][rr].bulletY,
+													speed : bulletSpeed,
+													firing: enemies[rc][rr]};
+
+			    		//enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
 						requestAnimationFrame(drawEnemyBullet);
 						enemies[rc][rr].reloaded = false;
 						setTimeout(reloadEnemyGun, 10);
@@ -238,14 +248,48 @@
 			}
 
 			function drawEnemyBullet() {
-				for (c = 0; c < enemyColumnCount; c++) {
-					for (r = 0; r < enemyRowCount; r++) {
-						if (c == 3 || c == 7) continue;
-						ctx.beginPath();
-						ctx.arc(enemies[c][r].bulletX, enemies[c][r].temp, bulletSize, 0, 2*Math.PI); //bulletY isnt resetting so they can only shoot once atm
-						ctx.fillStyle = "red";
-						ctx.fill();
-						ctx.closePath();
+				for (var index=0; index<bullet_id; index++) {
+					if(bullets[index] === undefined)
+						continue;
+
+					ctx.beginPath();
+					ctx.arc(bullets[index].x, bullets[index].y, bulletSize, 0, 2*Math.PI);
+					ctx.fillStyle = "red";
+					ctx.fill();
+					ctx.closePath();
+
+					bullets[index].y += bullets[index].speed;
+					var bullet_collided = false;
+
+					// First, we iterate over the breakables,
+					// we check if a bullet hit one of them.
+					for (c = 0; c < breakableColCount; c++) {
+						for (r = 0; r < breakableRowCount; r++) {
+							if (breakable[c][r].status > 0) {
+								// Collision detection:
+								// if y of the bullet is larger than y of the breakable, AND lower than breakableY+height, we're inside the breakable.
+								if(bullets[index].y >= breakable[c][r].y && bullets[index].y <= breakable[c][r].y+breakableHeight) {
+									if (bullets[index].x >= breakable[c][r].x && bullets[index].x <= breakable[c][r].x+breakableWidth) {
+										delete(bullets[index]);
+										bullet_collided = true;
+										break;
+									}
+								}
+							}
+						}
+						// Since the bullet collided, we can skip the rest of the breakables.
+						if(bullet_collided)
+							break;
+					}
+					// Since the bullet collided, we can skip to check if we hit the player.
+					if(bullet_collided)
+							break;
+
+					// IF it didn't, we will check if the bullet hit the player.
+					if(bullets[index].y >= playerY && bullets[index].y <= playerY+playerHeight) {
+						if(bullets[index].x >= playerX && bullets[index].x <= playerX+playerWidth) {
+							alert('Game over! GAME OVER MAN!');
+						}
 					}
 				}
 			}
@@ -365,7 +409,7 @@
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
 						if (enemies[c][r].fire) {
-								enemies[c][r].temp += bulletSpeed;
+							enemies[c][r].temp += bulletSpeed;
 						}
 					}
 				}
@@ -389,8 +433,8 @@
 
 			main();
 			setInterval(function() { 
-				var rc = Math.floor((Math.random() * enemyColumnCount) + 1);
-				var rr = Math.floor((Math.random() * enemyRowCount) + 1);		
+				var rc = Math.floor((Math.random() * enemyColumnCount));
+				var rr = Math.floor((Math.random() * enemyRowCount));
 				enemyFire(rc, rr);
 			},enemyReloadSpeed);
 
