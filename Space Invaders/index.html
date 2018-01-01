@@ -53,7 +53,7 @@
 			//bullet variables 
 			var bulletX = playerX+(playerWidth/2);
 			var bulletY = playerY;
-			var bulletSize = 10;
+			var bulletSize = 3;
 			var gunIsLoaded = true;
 
 			//bullet movement
@@ -257,17 +257,24 @@
 						break;
 
 					// IF it didn't, we will check if the bullet hit the player.
+<<<<<<< HEAD
+					if(bullets[index].y >= playerY && bullets[index].y <= playerY+playerHeight) {
+						if(bullets[index].x >= playerX && bullets[index].x <= playerX+playerWidth) {
+							hull--;
+							delete(bullets[index]);
+=======
 					if(enemyCollisionPlayer(bullets[index])) {
 						hull--;
 						delete(bullets[index]);
 						if (hull == 0) {
 							alert('Game over! GAME OVER MAN!');
+>>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
 						}
 					}
 				}
 			}
 			function reloadEnemyGun() {
-				for (c = 0; c < enemyColumnCount; c++) {
+				for (c = 0; c < enemyColumnCount; c++) {aaa
 					for (r = 0; r < enemyRowCount; r++) {
 						enemies[c][r].reloaded = true;
 					}
@@ -305,13 +312,33 @@
 				y += dy;
 			}
 
+<<<<<<< HEAD
+
+
+	/*		function enemyCollisionBreakable() { // doesnt work
+				for (c = 0; c < breakableColCount; c++) {
+					for (r = 0; r < breakableRowCount; r++) {
+						for (ec = 0; ec < enemyColumnCount; ec++) {
+							for (er = 0; er < enemyRowCount; er++) {
+								var b = breakable[c][r];
+								var e = enemies[ec][er];
+								if (b.status > 0) {
+		       	     				if(e.bulletX > b.x && e.bulletX < b.x + breakableWidth && e.temp == b.y) {
+				            			e.bulletX = 10000000;
+				            			b.status--; 
+					            	}
+				       	     	}
+							}
+						}
+=======
 			function enemyCollisionBreakable(bullet, breakable) { // doesnt work
 				if(bullet.y >= breakable.y && bullet.y <= breakable.y+breakableHeight) {
 					if (bullet.x >= breakable.x && bullet.x <= breakable.x+breakableWidth) {
 						return true;
+>>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
 					}
 				}
-			}
+			}*/
 
 			function enemyCollisionPlayer(bullet) {
 				if(bullet.y >= playerY && bullet.y <= playerY+playerHeight) {
@@ -389,6 +416,12 @@
 			main();
 			setInterval(function() { 
 				var rc = Math.floor((Math.random() * enemyColumnCount));
+<<<<<<< HEAD
+
+				var rr = Math.floor((Math.random() * enemyRowCount));		
+
+=======
+>>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
 				var rr = Math.floor((Math.random() * enemyRowCount));
 				enemyFire(rc, rr);
 			},enemyReloadSpeed);
