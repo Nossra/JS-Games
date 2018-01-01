@@ -29,7 +29,6 @@
 
 			 TODO:
 			 * Add movement to enemies
-			 * Fix hit detection between enemy bullets and the breakable walls.
 			 */
 
 			var canvas = document.getElementById("myCanvas");
@@ -40,7 +39,7 @@
 			var playerWidth = 30;
 			var playerX = (canvas.width-playerWidth)/2;
 			var playerY = (canvas.height-playerHeight)-20;
-			var hull = 5;
+			var hull = 3;
 
 			//movement variables
 			var x = canvas.width/2;
@@ -58,7 +57,7 @@
 
 			//bullet movement
 			var bulletPos = bulletY;
-			var bulletSpeed = 9
+			var bulletSpeed = 7
 
 			//enemy variables
 			var enemyColumnCount = 11;
@@ -74,24 +73,10 @@
 			var bullets = [];
 			var bullet_id = 0;
 
-			var enemy_sprites = [];
-			enemy_sprites[0] = {offset_pixels: {x: 4, y: 7},
-								matrix: [
-										[0,4], [0, 5], [0, 6], [0, 7],
-										[1, 3], [1, 4],
-										[2, 0], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7],
-										[3, 1], [3, 2], [3, 4], [3, 5], [3, 6], [3, 8], // Left eye
-										[4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 8],
-										[5, 2], [5, 3], [5, 4], [5, 5], [5, 6], // Center piece || From now on, we could just mirror this.
-										[6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 8],
-										[7, 1], [7, 2], [7, 4], [7, 5], [7, 6], [7, 8], // Righ eye
-										[8, 0], [8, 2], [8, 3], [8, 4], [8, 5], [8, 6], [8, 7],
-										[9, 3], [9, 4],
-										[10,4], [10, 5], [10, 6], [10, 7],
-										]};
-
 			var player_image = new Image();
 			player_image.src = "resources/images/space_invader_player.png"
+
+
 
 			//enemy objects
 			var enemies = [];
@@ -128,7 +113,7 @@
 					breakable[c][r] = {
 						x: 0, 
 						y: 0, 
-						status: 3
+						status: 5
 					};
 				}
 			}
@@ -203,24 +188,13 @@
 							enemies[c][r].x = enemyX;
 							enemies[c][r].y = enemyY;
 
+							var enemy_image = new Image();
+							enemy_image.src = "resources/images/space_invader_001.png"
 							ctx.beginPath();
-							
-							var scale = 2;
-							for(var i=0; i<enemy_sprites[0].matrix.length; i++) {
-								// Use the:
-								//      overall enemy X position
-								//    + offset.x (to center the image)
-								//    + matrix pixel-art position ([0] being x and [1] being y)
-								//    * scale
-								var x = enemyX + enemy_sprites[0].offset_pixels.x + (enemy_sprites[0].matrix[i][0] * scale);
-								var y = enemyY + enemy_sprites[0].offset_pixels.y + (enemy_sprites[0].matrix[i][1] * scale);
-
-								ctx.rect(x, y, 1*scale, 1*scale);
-							}
 							
 							ctx.fillStyle = "black";
 							ctx.fill();
-							//ctx.drawImage(enemy_image, enemyX, enemyY);
+							ctx.drawImage(enemy_image, enemyX, enemyY);
 							ctx.closePath();						
 						}	
 
@@ -235,9 +209,9 @@
 						// We create a array of bullets, where each bullet has a few values.
 						// bullet.x is the X position, bullet.y is the bullet Y position etc.
 						bullets[bullet_id++] = {x: enemies[rc][rr].bulletX,
-													y: enemies[rc][rr].bulletY,
-													speed : bulletSpeed,
-													firing: enemies[rc][rr]};
+												y: enemies[rc][rr].bulletY,
+												speed : bulletSpeed,
+												firing: enemies[rc][rr]};
 
 						//enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
 						requestAnimationFrame(drawEnemyBullet);
@@ -269,6 +243,7 @@
 								// Collision detection:
 								// if y of the bullet is larger than y of the breakable, AND lower than breakableY+height, we're inside the breakable.
 								if(enemyCollisionBreakable(bullets[index], breakable[c][r])) {
+									breakable[c][r].status--;
 									delete(bullets[index]);
 									bullet_collided = true;
 									break;
@@ -284,24 +259,19 @@
 						break;
 
 					// IF it didn't, we will check if the bullet hit the player.
-<<<<<<< HEAD
-					if(bullets[index].y >= playerY && bullets[index].y <= playerY+playerHeight) {
-						if(bullets[index].x >= playerX && bullets[index].x <= playerX+playerWidth) {
-							hull--;
-							delete(bullets[index]);
-=======
+
 					if(enemyCollisionPlayer(bullets[index])) {
 						hull--;
 						delete(bullets[index]);
 						if (hull == 0) {
 							alert('Game over! GAME OVER MAN!');
->>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
 						}
 					}
 				}
 			}
+
 			function reloadEnemyGun() {
-				for (c = 0; c < enemyColumnCount; c++) {aaa
+				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
 						enemies[c][r].reloaded = true;
 					}
@@ -339,33 +309,13 @@
 				y += dy;
 			}
 
-<<<<<<< HEAD
-
-
-	/*		function enemyCollisionBreakable() { // doesnt work
-				for (c = 0; c < breakableColCount; c++) {
-					for (r = 0; r < breakableRowCount; r++) {
-						for (ec = 0; ec < enemyColumnCount; ec++) {
-							for (er = 0; er < enemyRowCount; er++) {
-								var b = breakable[c][r];
-								var e = enemies[ec][er];
-								if (b.status > 0) {
-		       	     				if(e.bulletX > b.x && e.bulletX < b.x + breakableWidth && e.temp == b.y) {
-				            			e.bulletX = 10000000;
-				            			b.status--; 
-					            	}
-				       	     	}
-							}
-						}
-=======
 			function enemyCollisionBreakable(bullet, breakable) { // doesnt work
 				if(bullet.y >= breakable.y && bullet.y <= breakable.y+breakableHeight) {
 					if (bullet.x >= breakable.x && bullet.x <= breakable.x+breakableWidth) {
 						return true;
->>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
 					}
 				}
-			}*/
+			}
 
 			function enemyCollisionPlayer(bullet) {
 				if(bullet.y >= playerY && bullet.y <= playerY+playerHeight) {
@@ -442,13 +392,7 @@
 			main();
 			setInterval(function() { 
 				var rc = Math.floor((Math.random() * enemyColumnCount));
-<<<<<<< HEAD
-
 				var rr = Math.floor((Math.random() * enemyRowCount));		
-
-=======
->>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
-				var rr = Math.floor((Math.random() * enemyRowCount));
 				enemyFire(rc, rr);
 			},enemyReloadSpeed);
 
