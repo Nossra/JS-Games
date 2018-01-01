@@ -238,7 +238,13 @@
 			function enemyCollisionBreakable() {
 				for (c = 0; c < breakableColCount; c++) {
 					for (r = 0; r < breakableRowCount; r++) {
-						
+						var b = breakable[c][r];
+		       	     	if (b.status > 0) {
+		       	     		/*if(enemies[c][r].bulletX > b.x && enemies[c][r].bulletX < b.x + breakableWidth && enemies[c][r].temp > b.y && enemies[c][r].temp < b.y + breakableHeight) {
+			            		enemies[c][r].bulletX = 10000000;
+			            		b.status--; 
+			            	}*/
+		       	     	}
 					}
 				}
 			}
