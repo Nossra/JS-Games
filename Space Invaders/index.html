@@ -21,17 +21,23 @@
 			/*KNOWN BUGS
 			 * If you fire at the far left corner, the enemies left counter goes down for some reason. It can remove up to 6 in that counter.
 			 * the first middle breakable wall in the middle column breaks on only two hits. None of the others have this problem
+			 * You can seemingly randomly lose a life from either an invisible bullet or broken hit detection.
+
+
+			 TODO:
+			 * Add movement to enemies
+			 * Fix hit detection between enemy bullets and the breakable walls.
 			 */
 
 			var canvas = document.getElementById("myCanvas");
 			var ctx = canvas.getContext("2d");
 
-			//player variables
+			//player variablesa
 			var playerHeight = 30;
 			var playerWidth = 30;
 			var playerX = (canvas.width-playerWidth)/2;
 			var playerY = (canvas.height-playerHeight)-20;
-			var lives = 5;
+			var hull = 5;
 
 			//movement variables
 			var x = canvas.width/2;
@@ -145,7 +151,7 @@
 			function drawLivesBoard() {
 				ctx.font = "16px Consolas";
 				ctx.fillStyle = "black";
-				ctx.fillText("Hull armor: " + lives, 180, canvas.height-10); 
+				ctx.fillText("Hull armor: " + hull, 180, canvas.height-10); 
 			}
 
 			function drawPlayerBullet() {
@@ -277,9 +283,9 @@
 					for (r = 0; r < enemyRowCount; r++) {
 	       	     		if(enemies[c][r].bulletX > playerX && enemies[c][r].bulletX < playerX + playerWidth && enemies[c][r].temp > playerY && enemies[c][r].temp < playerY + enemyHeight) {
 			            	enemies[c][r].bulletX = 10000000; 
-			            	lives--;
-			            	console.log(lives);
-			            	if (lives == 0) {
+			            	hull--;
+			            	console.log(hull);
+			            	if (hull == 0) {
 			            		alert("game over");
 			            	}			            	
 		            	}
