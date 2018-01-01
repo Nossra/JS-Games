@@ -19,6 +19,7 @@
 			var playerWidth = 30;
 			var playerX = (canvas.width-playerWidth)/2;
 			var playerY = (canvas.height-playerHeight)-20;
+			var lives = 5;
 
 			//movement variables
 			var x = canvas.width/2;
@@ -49,6 +50,7 @@
 			var enemiesLeft = 9 * 3;
 			var enemyReloadSpeed = 200;
 
+			//image resource
 			var enemy_image = new Image();
 			enemy_image.src = "resources/images/space_invader_001.png";
 			var player_image = new Image();
@@ -111,7 +113,7 @@
 			        right = true;
 			    } else if(e.keyCode == 37  || e.keyCode == 65) {
 			        left = true;
-			    } else if(e.keyCode == 32) {
+			    } else if(e.keyCode == 32 || e.keyCode == 96) {
 			    	if (gunIsLoaded) {
 			    		bulletX = playerX+(playerWidth/2);
 				    	bulletPos = bulletY;
@@ -126,6 +128,12 @@
 				ctx.font = "16px Consolas";
 				ctx.fillStyle = "black";
 				ctx.fillText("Enemies left: " + enemiesLeft, 20, 30); 
+			}
+
+			function drawLivesBoard() {
+				ctx.font = "16px Consolas";
+				ctx.fillStyle = "black";
+				ctx.fillText("Hull armor: " + lives, canvas.width-150, 30); 
 			}
 
 			function drawPlayerBullet() {
@@ -170,19 +178,14 @@
 			}
 
 			function enemyFire(rc, rr) {
-				for (c = 0; c < enemyColumnCount; c++) {
-					for (r = 0; r < enemyRowCount; r++) {
-						if (enemies[rc][rr].status == 1) {
-							if (enemies[rc][rr].reloaded) {
-					    		//enemies[rc][rr].bulletX = ((c * (enemyWidth + enemyPadding)) + enemyOffsetLeft+playerWidth/2);
-					    		enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
-								requestAnimationFrame(drawEnemyBullet);
-								enemies[rc][rr].reloaded = false;
-								setTimeout(reloadEnemyGun, 10);
-							}	
-						}
-					}
-				}		
+				if (enemies[rc][rr].status == 1) {
+					if (enemies[rc][rr].reloaded) {
+			    		enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
+						requestAnimationFrame(drawEnemyBullet);
+						enemies[rc][rr].reloaded = false;
+						setTimeout(reloadEnemyGun, 10);
+					}	
+				}	
 			}
 
 			function drawEnemyBullet() {
@@ -191,7 +194,7 @@
 						if (c == 3 || c == 7) continue;
 						ctx.beginPath();
 						ctx.arc(enemies[c][r].bulletX, enemies[c][r].temp, bulletSize, 0, 2*Math.PI); //bulletY isnt resetting so they can only shoot once atm
-						ctx.fillStyle = "black";
+						ctx.fillStyle = "red";
 						ctx.fill();
 						ctx.closePath();
 					}
@@ -238,22 +241,38 @@
 
 
 
-			function enemyCollisionBreakable() {
+			function enemyCollisionBreakable() { // doesnt work
 				for (c = 0; c < breakableColCount; c++) {
 					for (r = 0; r < breakableRowCount; r++) {
-						var b = breakable[c][r];
-		       	     	if (b.status > 0) {
-		       	     		/*if(enemies[c][r].bulletX > b.x && enemies[c][r].bulletX < b.x + breakableWidth && enemies[c][r].temp > b.y && enemies[c][r].temp < b.y + breakableHeight) {
-			            		enemies[c][r].bulletX = 10000000;
-			            		b.status--; 
-			            	}*/
-		       	     	}
+						for (ec = 0; ec < enemyColumnCount; ec++) {
+							for (er = 0; er < enemyRowCount; er++) {
+								var b = breakable[c][r];
+								var e = enemies[ec][er];
+								if (b.status > 0) {
+		       	     				if(e.bulletX > b.x && e.bulletX < b.x + breakableWidth && e.temp == b.y) {
+				            			e.bulletX = 10000000;
+				            			b.status--; 
+					            	}
+				       	     	}
+							}
+						}
 					}
 				}
 			}
 
 			function enemyCollisionPlayer() {
-
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+	       	     		if(enemies[c][r].bulletX > playerX && enemies[c][r].bulletX < playerX + playerWidth && enemies[c][r].temp > playerY && enemies[c][r].temp < playerY + enemyHeight) {
+			            	enemies[c][r].bulletX = 10000000; 
+			            	lives--;
+			            	console.log(lives);
+			            	if (lives == 0) {
+			            		alert("game over");
+			            	}			            	
+		            	}
+					}
+				}
 			}
 
 			function playerCollisionEnemy() {
@@ -305,7 +324,7 @@
 				drawPlayer();
 				drawEnemies();
 				drawBreakableWalls();
-				drawEnemyBullet();
+				drawEnemyBullet(); //is buggy but currently required. 
 				move();	
 				enemyCollisionBreakable();
 				enemyCollisionPlayer();
@@ -313,6 +332,7 @@
 				playerCollisionBreakable();
 
 				drawEnemyBoard();
+				drawLivesBoard();
 				
 				requestAnimationFrame(main);	
 
