@@ -138,27 +138,27 @@
 			document.addEventListener("keyup", keyUpHandler, false);
 
 			function keyUpHandler(e) {
-			    if(e.keyCode == 39 || e.keyCode == 68) {
-			        right = false;
-			    } else if(e.keyCode == 37 || e.keyCode == 65) {
-			        left = false;
-			    }
+				if(e.keyCode == 39 || e.keyCode == 68) {
+					right = false;
+				} else if(e.keyCode == 37 || e.keyCode == 65) {
+					left = false;
+				}
 			}
 
 			function keyDownHandler(e) {
-			    if(e.keyCode == 39 ||  e.keyCode == 68) {
-			        right = true;
-			    } else if(e.keyCode == 37  || e.keyCode == 65) {
-			        left = true;
-			    } else if(e.keyCode == 32 || e.keyCode == 17) {
-			    	if (gunIsLoaded) {
-			    		bulletX = playerX+(playerWidth/2);
-				    	bulletPos = bulletY;
-			    		setInterval(drawPlayerBullet,10);	
-			    		gunIsLoaded = false;
-			    		setTimeout(reloadGun, 700);
-			    	}
-			    }
+				if(e.keyCode == 39 ||  e.keyCode == 68) {
+					right = true;
+				} else if(e.keyCode == 37  || e.keyCode == 65) {
+					left = true;
+				} else if(e.keyCode == 32 || e.keyCode == 17) {
+					if (gunIsLoaded) {
+						bulletX = playerX+(playerWidth/2);
+						bulletPos = bulletY;
+						setInterval(drawPlayerBullet,10);	
+						gunIsLoaded = false;
+						setTimeout(reloadGun, 700);
+					}
+				}
 			}
 
 			function drawEnemyBoard() {
@@ -239,7 +239,7 @@
 													speed : bulletSpeed,
 													firing: enemies[rc][rr]};
 
-			    		//enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
+						//enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
 						requestAnimationFrame(drawEnemyBullet);
 						enemies[rc][rr].reloaded = false;
 						setTimeout(reloadEnemyGun, 10);
@@ -268,12 +268,10 @@
 							if (breakable[c][r].status > 0) {
 								// Collision detection:
 								// if y of the bullet is larger than y of the breakable, AND lower than breakableY+height, we're inside the breakable.
-								if(bullets[index].y >= breakable[c][r].y && bullets[index].y <= breakable[c][r].y+breakableHeight) {
-									if (bullets[index].x >= breakable[c][r].x && bullets[index].x <= breakable[c][r].x+breakableWidth) {
-										delete(bullets[index]);
-										bullet_collided = true;
-										break;
-									}
+								if(enemyCollisionBreakable(bullets[index], breakable[c][r])) {
+									delete(bullets[index]);
+									bullet_collided = true;
+									break;
 								}
 							}
 						}
@@ -286,13 +284,11 @@
 						break;
 
 					// IF it didn't, we will check if the bullet hit the player.
-					if(bullets[index].y >= playerY && bullets[index].y <= playerY+playerHeight) {
-						if(bullets[index].x >= playerX && bullets[index].x <= playerX+playerWidth) {
-							hull--;
-							delete(bullets[index]);
-							if (hull == 0) {
-								alert('Game over! GAME OVER MAN!');
-							}
+					if(enemyCollisionPlayer(bullets[index])) {
+						hull--;
+						delete(bullets[index]);
+						if (hull == 0) {
+							alert('Game over! GAME OVER MAN!');
 						}
 					}
 				}
@@ -327,64 +323,46 @@
 
 			function move() {
 				if(right && playerX < canvas.width-playerWidth) {
-			        playerX += 7;
-			    } else if(left && playerX > 0) {
-			        playerX -= 7;
-			    }
-			    
-			    x += dx;
-			    y += dy;
+					playerX += 7;
+				} else if(left && playerX > 0) {
+					playerX -= 7;
+				}
+				
+				x += dx;
+				y += dy;
 			}
 
-			function enemyCollisionBreakable() { // doesnt work
-				for (c = 0; c < breakableColCount; c++) {
-					for (r = 0; r < breakableRowCount; r++) {
-						for (ec = 0; ec < enemyColumnCount; ec++) {
-							for (er = 0; er < enemyRowCount; er++) {
-								var b = breakable[c][r];
-								var e = enemies[ec][er];
-								if (b.status > 0) {
-		       	     				if(e.bulletX > b.x && e.bulletX < b.x + breakableWidth && e.temp == b.y) {
-				            			e.bulletX = 10000000;
-				            			b.status--; 
-					            	}
-				       	     	}
-							}
-						}
+			function enemyCollisionBreakable(bullet, breakable) { // doesnt work
+				if(bullet.y >= breakable.y && bullet.y <= breakable.y+breakableHeight) {
+					if (bullet.x >= breakable.x && bullet.x <= breakable.x+breakableWidth) {
+						return true;
 					}
 				}
 			}
 
-			function enemyCollisionPlayer() {
-				//for (c = 0; c < enemyColumnCount; c++) {
-				//	for (r = 0; r < enemyRowCount; r++) {
-	       	    // 		if(enemies[c][r].bulletX > playerX && enemies[c][r].bulletX < playerX + playerWidth && enemies[c][r].temp > playerY && enemies[c][r].temp < playerY + enemyHeight) {
-			    //        	enemies[c][r].bulletX = 10000000; 
-			    //        	hull--;
-			    //        	console.log(hull);
-			    //        	if (hull == 0) {
-			    //        		alert("game over");
-			    //        	}			            	
-		        //    	}
-				//	}
-				//}
+			function enemyCollisionPlayer(bullet) {
+				if(bullet.y >= playerY && bullet.y <= playerY+playerHeight) {
+					if(bullet.x >= playerX && bullet.x <= playerX+playerWidth) {
+						return true;
+					}
+				}
 			}
 
 			function playerCollisionEnemy() {
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
 						var e = enemies[c][r];
-		       	     	if (e.status == 1) {
-		       	     		if(bulletX > e.x && bulletX < e.x + enemyWidth && bulletPos > e.y && bulletPos < e.y + enemyHeight) {
-				            	//ctx.clearRect(0, 0, canvas.width, canvas.height); //Cool blinking effect on hit
-				            	bulletX = 10000000; //weird solution to make it look like the shot disappears o_0
-				            	e.status--;
-				            	enemiesLeft--;
-				            	if (enemiesLeft == 0) {
-				            		alert("lol u won");
-				            	}
-			            	}
-		       	     	}
+						if (e.status == 1) {
+							if(bulletX > e.x && bulletX < e.x + enemyWidth && bulletPos > e.y && bulletPos < e.y + enemyHeight) {
+								//ctx.clearRect(0, 0, canvas.width, canvas.height); //Cool blinking effect on hit
+								bulletX = 10000000; //weird solution to make it look like the shot disappears o_0
+								e.status--;
+								enemiesLeft--;
+								if (enemiesLeft == 0) {
+									alert("lol u won");
+								}
+							}
+						}
 					}
 				}
 			}
@@ -393,12 +371,12 @@
 				for (c = 0; c < breakableColCount; c++) {
 					for (r = 0; r < breakableRowCount; r++) {
 						var b = breakable[c][r];
-		       	     	if (b.status > 0) {
-		       	     		if(bulletX > b.x && bulletX < b.x + breakableWidth && bulletPos > b.y && bulletPos < b.y + breakableHeight) {
-			            		bulletX = 10000000;
-			            		b.status--; 
-			            	}
-		       	     	}
+						if (b.status > 0) {
+							if(bulletX > b.x && bulletX < b.x + breakableWidth && bulletPos > b.y && bulletPos < b.y + breakableHeight) {
+								bulletX = 10000000;
+								b.status--; 
+							}
+						}
 					}
 				}
 			}
@@ -421,8 +399,9 @@
 				drawBreakableWalls();
 				drawEnemyBullet(); //is buggy but currently required. atm it also creates one shot from all enemies right at the spawn point of the player
 				move();	
-				enemyCollisionBreakable();
-				enemyCollisionPlayer();
+				// These are now called in the drawEnemyBullet()
+				//enemyCollisionBreakable();
+				//enemyCollisionPlayer();
 				playerCollisionEnemy();
 				playerCollisionBreakable();
 
