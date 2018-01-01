@@ -90,7 +90,6 @@
 						status: 1,
 						bulletX: ((c * (enemyWidth + enemyPadding)) + enemyOffsetLeft+playerWidth/2),
 						bulletY: ((r * (enemyHeight + enemyPadding)) + enemyOffsetTop)+playerHeight,
-						fire: true,
 						temp: bulletY,
 						reloaded: true
 					};
@@ -363,9 +362,8 @@
 				//enemy bullet movement
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
-						if (enemies[c][r].fire) {
+						if (c == 3 || c == 7) continue;
 							enemies[c][r].temp += bulletSpeed;
-						}
 					}
 				}
 
@@ -373,13 +371,10 @@
 				drawPlayerBullet();
 				drawEnemies();
 				drawBreakableWalls();
-				drawEnemyBullet(); //is buggy but currently required. atm it also creates one shot from all enemies right at the spawn point of the player
+				drawEnemyBullet(); 
 				move();	
-				// These are now called in the drawEnemyBullet()
-				//enemyCollisionBreakable();
-				//enemyCollisionPlayer();
 				playerCollisionEnemy();
-				playerCollisionBreakable();
+				playerCollisionBreakable(); 
 
 				drawEnemyBoard();
 				drawLivesBoard();
