@@ -1,10 +1,22 @@
 <html>
 	<head>
-		
+		<title>Space Invaders by Martin Nilsson</title>
+		<style>
+			p {
+				font-size:12px;
+				font-family: consolas;
+			}
+			h1 {
+				font-size:32px;
+				font-family: consolas;
+				font-weight: bold;
+			}
+		</style>
 	</head>
 	<body>
+		<h1>Space Invaders</h1>
 		<canvas id="myCanvas" width="500" height="400" style="border:2px solid black;"></canvas>
-
+		<p>Controls: SPACE or NUM_0 to fire. Move with arrowkeys or "W" and "D"</p>
 		<script>
 			/*KNOWN BUGS
 			 * If you fire at the far left corner, the enemies left counter goes down for some reason. It can remove up to 6 in that counter.
@@ -127,13 +139,13 @@
 			function drawEnemyBoard() {
 				ctx.font = "16px Consolas";
 				ctx.fillStyle = "black";
-				ctx.fillText("Enemies left: " + enemiesLeft, 20, 30); 
+				ctx.fillText("Enemies left: " + enemiesLeft, 10, canvas.height-10); 
 			}
 
 			function drawLivesBoard() {
 				ctx.font = "16px Consolas";
 				ctx.fillStyle = "black";
-				ctx.fillText("Hull armor: " + lives, canvas.width-150, 30); 
+				ctx.fillText("Hull armor: " + lives, 180, canvas.height-10); 
 			}
 
 			function drawPlayerBullet() {
