@@ -29,7 +29,6 @@
 
 			 TODO:
 			 * Add movement to enemies
-			 * Fix hit detection between enemy bullets and the breakable walls.
 			 */
 
 			var canvas = document.getElementById("myCanvas");
@@ -58,7 +57,7 @@
 
 			//bullet movement
 			var bulletPos = bulletY;
-			var bulletSpeed = 9
+			var bulletSpeed = 9;
 
 			//enemy variables
 			var enemyColumnCount = 11;
@@ -208,9 +207,9 @@
 						// We create a array of bullets, where each bullet has a few values.
 						// bullet.x is the X position, bullet.y is the bullet Y position etc.
 						bullets[bullet_id++] = {x: enemies[rc][rr].bulletX,
-													y: enemies[rc][rr].bulletY,
-													speed : bulletSpeed,
-													firing: enemies[rc][rr]};
+												y: enemies[rc][rr].bulletY,
+												speed : bulletSpeed,
+												firing: enemies[rc][rr]};
 
 						//enemies[rc][rr].temp = enemies[rc][rr].bulletY;	
 						requestAnimationFrame(drawEnemyBullet);
@@ -242,6 +241,7 @@
 								// Collision detection:
 								// if y of the bullet is larger than y of the breakable, AND lower than breakableY+height, we're inside the breakable.
 								if(enemyCollisionBreakable(bullets[index], breakable[c][r])) {
+									breakable[c][r].status--;
 									delete(bullets[index]);
 									bullet_collided = true;
 									break;
@@ -257,24 +257,19 @@
 						break;
 
 					// IF it didn't, we will check if the bullet hit the player.
-<<<<<<< HEAD
-					if(bullets[index].y >= playerY && bullets[index].y <= playerY+playerHeight) {
-						if(bullets[index].x >= playerX && bullets[index].x <= playerX+playerWidth) {
-							hull--;
-							delete(bullets[index]);
-=======
+
 					if(enemyCollisionPlayer(bullets[index])) {
 						hull--;
 						delete(bullets[index]);
 						if (hull == 0) {
 							alert('Game over! GAME OVER MAN!');
->>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
 						}
 					}
 				}
 			}
+
 			function reloadEnemyGun() {
-				for (c = 0; c < enemyColumnCount; c++) {aaa
+				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
 						enemies[c][r].reloaded = true;
 					}
@@ -312,33 +307,13 @@
 				y += dy;
 			}
 
-<<<<<<< HEAD
-
-
-	/*		function enemyCollisionBreakable() { // doesnt work
-				for (c = 0; c < breakableColCount; c++) {
-					for (r = 0; r < breakableRowCount; r++) {
-						for (ec = 0; ec < enemyColumnCount; ec++) {
-							for (er = 0; er < enemyRowCount; er++) {
-								var b = breakable[c][r];
-								var e = enemies[ec][er];
-								if (b.status > 0) {
-		       	     				if(e.bulletX > b.x && e.bulletX < b.x + breakableWidth && e.temp == b.y) {
-				            			e.bulletX = 10000000;
-				            			b.status--; 
-					            	}
-				       	     	}
-							}
-						}
-=======
 			function enemyCollisionBreakable(bullet, breakable) { // doesnt work
 				if(bullet.y >= breakable.y && bullet.y <= breakable.y+breakableHeight) {
 					if (bullet.x >= breakable.x && bullet.x <= breakable.x+breakableWidth) {
 						return true;
->>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
 					}
 				}
-			}*/
+			}
 
 			function enemyCollisionPlayer(bullet) {
 				if(bullet.y >= playerY && bullet.y <= playerY+playerHeight) {
@@ -416,13 +391,7 @@
 			main();
 			setInterval(function() { 
 				var rc = Math.floor((Math.random() * enemyColumnCount));
-<<<<<<< HEAD
-
 				var rr = Math.floor((Math.random() * enemyRowCount));		
-
-=======
->>>>>>> dc27d3cdd7bba84c943b9bba351c222f68b71f78
-				var rr = Math.floor((Math.random() * enemyRowCount));
 				enemyFire(rc, rr);
 			},enemyReloadSpeed);
 
