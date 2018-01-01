@@ -288,7 +288,11 @@
 					// IF it didn't, we will check if the bullet hit the player.
 					if(bullets[index].y >= playerY && bullets[index].y <= playerY+playerHeight) {
 						if(bullets[index].x >= playerX && bullets[index].x <= playerX+playerWidth) {
-							alert('Game over! GAME OVER MAN!');
+							hull--;
+							delete(bullets[index]);
+							if (hull == 0) {
+								alert('Game over! GAME OVER MAN!');
+							}
 						}
 					}
 				}
@@ -332,8 +336,6 @@
 			    y += dy;
 			}
 
-
-
 			function enemyCollisionBreakable() { // doesnt work
 				for (c = 0; c < breakableColCount; c++) {
 					for (r = 0; r < breakableRowCount; r++) {
@@ -354,18 +356,18 @@
 			}
 
 			function enemyCollisionPlayer() {
-				for (c = 0; c < enemyColumnCount; c++) {
-					for (r = 0; r < enemyRowCount; r++) {
-	       	     		if(enemies[c][r].bulletX > playerX && enemies[c][r].bulletX < playerX + playerWidth && enemies[c][r].temp > playerY && enemies[c][r].temp < playerY + enemyHeight) {
-			            	enemies[c][r].bulletX = 10000000; 
-			            	hull--;
-			            	console.log(hull);
-			            	if (hull == 0) {
-			            		alert("game over");
-			            	}			            	
-		            	}
-					}
-				}
+				//for (c = 0; c < enemyColumnCount; c++) {
+				//	for (r = 0; r < enemyRowCount; r++) {
+	       	    // 		if(enemies[c][r].bulletX > playerX && enemies[c][r].bulletX < playerX + playerWidth && enemies[c][r].temp > playerY && enemies[c][r].temp < playerY + enemyHeight) {
+			    //        	enemies[c][r].bulletX = 10000000; 
+			    //        	hull--;
+			    //        	console.log(hull);
+			    //        	if (hull == 0) {
+			    //        		alert("game over");
+			    //        	}			            	
+		        //    	}
+				//	}
+				//}
 			}
 
 			function playerCollisionEnemy() {
