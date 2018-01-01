@@ -61,13 +61,13 @@
 
 			//enemy variables
 			var enemyColumnCount = 11;
-			var enemyRowCount = 3;
+			var enemyRowCount = 5;
 			var enemyWidth = 30;
 			var enemyHeight = 30;
 			var enemyPadding = 5;
 			var enemyOffsetTop = 50;
 			var enemyOffsetLeft = ((canvas.width - (enemyWidth * enemyColumnCount)) - enemyPadding * enemyColumnCount)/2;
-			var enemiesLeft = 9 * 3;
+			var enemiesLeft = enemyColumnCount * enemyRowCount;
 			var enemyReloadSpeed = 200;
 
 			var bullets = [];
@@ -171,8 +171,6 @@
 
 			function drawPlayer() {
 				ctx.beginPath();
-				//ctx.rect(playerX, playerY, playerWidth, playerHeight);
-				//ctx.stroke();
 				ctx.drawImage(player_image, playerX, playerY);
 				ctx.closePath();
 			}
@@ -181,7 +179,6 @@
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
 						if (enemies[c][r].status == 1) {
-							if (c == 3 || c == 7) continue; 
 							var enemyX = (c * (enemyWidth + enemyPadding)) + enemyOffsetLeft;
 							var enemyY = (r * (enemyHeight + enemyPadding)) + enemyOffsetTop;
 							enemies[c][r].x = enemyX;
@@ -193,8 +190,7 @@
 							ctx.fill();
 							ctx.drawImage(enemy_image, enemyX, enemyY);
 							ctx.closePath();						
-						}	
-
+						}
 					}
 				}
 			}
@@ -262,6 +258,7 @@
 						delete(bullets[index]);
 						if (hull == 0) {
 							alert('Game over! GAME OVER MAN!');
+							window.location.reload(true);
 						}
 					}
 				}
@@ -334,6 +331,7 @@
 								enemiesLeft--;
 								if (enemiesLeft == 0) {
 									alert("lol u won");
+									window.location.reload(true);
 								}
 							}
 						}
@@ -357,15 +355,7 @@
 
 			function main() {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				//player bullet movement
 				bulletPos -= bulletSpeed; 
-				//enemy bullet movement
-				for (c = 0; c < enemyColumnCount; c++) {
-					for (r = 0; r < enemyRowCount; r++) {
-						if (c == 3 || c == 7) continue;
-							enemies[c][r].temp += bulletSpeed;
-					}
-				}
 
 				drawPlayer();
 				drawPlayerBullet();
@@ -386,7 +376,7 @@
 			main();
 			setInterval(function() { 
 				var rc = Math.floor((Math.random() * enemyColumnCount));
-				var rr = Math.floor((Math.random() * enemyRowCount));		
+				var rr = Math.floor((Math.random() * enemyRowCount));	
 				enemyFire(rc, rr);
 			},enemyReloadSpeed);
 
