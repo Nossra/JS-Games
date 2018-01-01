@@ -49,8 +49,22 @@
 			var enemiesLeft = 9 * 3;
 			var enemyReloadSpeed = 200;
 
-			var enemy_image = new Image();
-			enemy_image.src = "resources/images/space_invader_001.png";
+			var enemy_sprites = [];
+			enemy_sprites[0] = {offset_pixels: {x: 4, y: 7},
+								matrix: [
+										[0,4], [0, 5], [0, 6], [0, 7],
+										[1, 3], [1, 4],
+										[2, 0], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7],
+										[3, 1], [3, 2], [3, 4], [3, 5], [3, 6], [3, 8], // Left eye
+										[4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 8],
+										[5, 2], [5, 3], [5, 4], [5, 5], [5, 6], // Center piece || From now on, we could mirror this.
+										[6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [6, 8],
+										[7, 1], [7, 2], [7, 4], [7, 5], [7, 6], [7, 8], // Left eye
+										[8, 0], [8, 2], [8, 3], [8, 4], [8, 5], [8, 6], [8, 7],
+										[9, 3], [9, 4],
+										[10,4], [10, 5], [10, 6], [10, 7],
+										]};
+
 			var player_image = new Image();
 			player_image.src = "resources/images/space_invader_player.png"
 
@@ -157,11 +171,25 @@
 							var enemyY = (r * (enemyHeight + enemyPadding)) + enemyOffsetTop;
 							enemies[c][r].x = enemyX;
 							enemies[c][r].y = enemyY;
+
 							ctx.beginPath();
-							//ctx.rect(enemyX, enemyY, enemyWidth, enemyHeight);
-							//ctx.fillStyle = "black";
-							//ctx.fill();
-							ctx.drawImage(enemy_image, enemyX, enemyY);
+							
+							var scale = 2;
+							for(var i=0; i<enemy_sprites[0].matrix.length; i++) {
+								// Use the:
+								//      overall enemy X position
+								//    + offset.x (to center the image)
+								//    + matrix pixel-art position ([0] being x and [1] being y)
+								//    * scale
+								var x = enemyX + enemy_sprites[0].offset_pixels.x + (enemy_sprites[0].matrix[i][0] * scale);
+								var y = enemyY + enemy_sprites[0].offset_pixels.y + (enemy_sprites[0].matrix[i][1] * scale);
+
+								ctx.rect(x, y, 1*scale, 1*scale);
+							}
+							
+							ctx.fillStyle = "black";
+							ctx.fill();
+							//ctx.drawImage(enemy_image, enemyX, enemyY);
 							ctx.closePath();						
 						}	
 
