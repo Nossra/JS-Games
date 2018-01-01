@@ -49,6 +49,9 @@
 			var enemiesLeft = 9 * 3;
 			var enemyReloadSpeed = 200;
 
+			var enemy_image = new Image();
+			enemy_image.src = "resources/images/space_invader_001.png";
+
 			//enemy objects
 			var enemies = [];
 			for (c = 0; c < enemyColumnCount; c++) {
@@ -152,9 +155,10 @@
 							enemies[c][r].x = enemyX;
 							enemies[c][r].y = enemyY;
 							ctx.beginPath();
-							ctx.rect(enemyX, enemyY, enemyWidth, enemyHeight);
-							ctx.fillStyle = "black";
-							ctx.fill();
+							//ctx.rect(enemyX, enemyY, enemyWidth, enemyHeight);
+							//ctx.fillStyle = "black";
+							//ctx.fill();
+							ctx.drawImage(enemy_image, enemyX, enemyY);
 							ctx.closePath();						
 						}	
 
