@@ -40,6 +40,8 @@
 			var playerX = (canvas.width-playerWidth)/2;
 			var playerY = (canvas.height-playerHeight)-20;
 			var hull = 5;
+			var reloadBarFull = playerWidth;
+			var reloadbar = reloadBarFull;
 
 
 			//movement variables
@@ -143,11 +145,12 @@
 					left = true;
 				} else if(e.keyCode == 32 || e.keyCode == 17) {
 					if (gunIsLoaded) {
+						reloadbar = 0;
 						bulletX = playerX+(playerWidth/2);
 						bulletPos = bulletY;
 						gunIsLoaded = false;
 						setTimeout(reloadGun, reloadSpeed);
-					}
+					}										
 				}
 			}
 
@@ -169,9 +172,6 @@
 					ctx.drawImage(hull_image, xPosLives, 5);
 					xPosLives += 20;
 				}
-				/*ctx.font = "16px Consolas";
-				ctx.fillStyle = "black";
-				ctx.fillText("Hull armor: " + hull, 180, 20); */
 			}
 
 			function drawPlayerBullet() {
@@ -184,11 +184,20 @@
 
 			function reloadGun() {
 				gunIsLoaded = true;
+				for (i = 0; i < reloadSpeed; i++) reloadbar += 1 * (reloadBarFull/reloadSpeed);
 			}
 
 			function drawPlayer() {
 				ctx.beginPath();
 				ctx.drawImage(player_image, playerX, playerY);
+				ctx.closePath();
+			}
+
+			function drawReloadBar() {
+				ctx.beginPath();
+				ctx.rect(playerX, playerY+playerHeight-5, reloadbar, 7);
+				ctx.fillStyle = "lightgreen";
+				ctx.fill();
 				ctx.closePath();
 			}
 
@@ -316,10 +325,6 @@
 					if(enemyCollisionPlayer(bullets[index])) {
 						hull--;
 						delete(bullets[index]);
-						if (hull == 0) {
-							alert('Game over! GAME OVER MAN!');
-							window.location.reload(true);
-						}6
 					}
 				}
 			}
@@ -378,10 +383,6 @@
 								bulletX = 10000000; //weird solution to make it look like the shot disappears o_0
 								e.status--;
 								enemiesLeft--;
-								if (enemiesLeft == 0) {
-									alert("lol u won");
-									window.location.reload(true);
-								}
 							}
 						}
 					}
@@ -402,11 +403,22 @@
 				}
 			}
 
+			function scoreScreen() {
+				if (enemiesLeft == 0) {
+					alert("lol u won");
+					window.location.reload(true);
+				}
+				if (hull == 0) {
+					alert('Game over! GAME OVER MAN!');
+					window.location.reload(true);
+				}
+			}
+
 			function main() {
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				bulletPos -= bulletSpeed; 
-
 				drawPlayer();
+				drawReloadBar();
 				drawPlayerBullet();
 				drawEnemies();
 				drawBreakableWalls();
@@ -419,7 +431,7 @@
 
 				drawEnemyBoard();
 				drawLivesBoard();
-				
+				scoreScreen();
 				requestAnimationFrame(main);	
 
 			}
