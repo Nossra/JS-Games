@@ -30,7 +30,7 @@
 			 TODO:
 			 * Add movement to enemies
 			 */
-
+ 
 			var canvas = document.getElementById("myCanvas");
 			var ctx = canvas.getContext("2d");
 
@@ -41,13 +41,13 @@
 			var playerY = (canvas.height-playerHeight)-20;
 			var hull = 5;
 
+
 			//movement variables
 			var x = canvas.width/2;
-			var y = canvas.height-30
-			var dx = 2;
-			var dy = -2;
+			var y = canvas.height-30;
 			var right = false;
 			var left = false;
+			var movementSpeed = 7;
 
 			//bullet variables 
 			var bulletX = playerX+(playerWidth/2);
@@ -57,7 +57,8 @@
 
 			//bullet movement
 			var bulletPos = bulletY;
-			var bulletSpeed = 9;
+			var bulletSpeed = 4;
+			var reloadSpeed = 1000;
 
 			//enemy variables
 			var enemyColumnCount = 11;
@@ -69,6 +70,7 @@
 			var enemyOffsetLeft = ((canvas.width - (enemyWidth * enemyColumnCount)) - enemyPadding * enemyColumnCount)/2;
 			var enemiesLeft = enemyColumnCount * enemyRowCount;
 			var enemyReloadSpeed = 200;
+			var enemyMovementSpeed = 0.03;
 
 			var bullets = [];
 			var bullet_id = 0;
@@ -91,7 +93,8 @@
 						bulletX: ((c * (enemyWidth + enemyPadding)) + enemyOffsetLeft+playerWidth/2),
 						bulletY: ((r * (enemyHeight + enemyPadding)) + enemyOffsetTop)+playerHeight,
 						temp: bulletY,
-						reloaded: true
+						reloaded: true,
+						direction_left: true //true == left 
 					};
 				}
 			}
@@ -140,7 +143,7 @@
 						bulletX = playerX+(playerWidth/2);
 						bulletPos = bulletY;
 						gunIsLoaded = false;
-						setTimeout(reloadGun, 700);
+						setTimeout(reloadGun, reloadSpeed);
 					}
 				}
 			}
@@ -175,6 +178,38 @@
 				ctx.closePath();
 			}
 
+
+			function move() {
+				if(right && playerX < canvas.width-playerWidth) {
+					playerX += movementSpeed;
+				} else if(left && playerX > 0) {
+					playerX -= movementSpeed;
+				}
+			}
+
+			function enemyMovement() {
+				var maxRight = (canvas.width - (enemyWidth * enemyColumnCount)) - enemyPadding * enemyColumnCount;
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+						if (enemies[c][r].direction_left == true && enemyOffsetLeft > 0) {
+							if (enemyOffsetLeft < 1) {
+								enemies[c][r].direction_left = false;
+							} else {
+								enemyOffsetLeft -= enemyMovementSpeed;
+								enemies[c][r].bulletX = (enemies[c][r].x + enemyWidth/2); 
+							}							
+						} else if (enemies[c][r].direction_left == false && enemyOffsetLeft < maxRight) {
+							if (enemyOffsetLeft >= maxRight-1) {
+								enemies[c][r].direction_left = true;
+							} else {
+								enemyOffsetLeft += enemyMovementSpeed;
+								enemies[c][r].bulletX = (enemies[c][r].x + enemyWidth/2);
+							}							
+						}
+					}
+				}
+			}
+
 			function drawEnemies() {
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
@@ -185,14 +220,15 @@
 							enemies[c][r].y = enemyY;
 
 							ctx.beginPath();
-							
 							ctx.fillStyle = "black";
 							ctx.fill();
 							ctx.drawImage(enemy_image, enemyX, enemyY);
-							ctx.closePath();						
+							ctx.closePath();			
 						}
 					}
 				}
+
+
 			}
 
 			function enemyFire(rc, rr) {
@@ -292,17 +328,6 @@
 				}
 			}
 
-			function move() {
-				if(right && playerX < canvas.width-playerWidth) {
-					playerX += 7;
-				} else if(left && playerX > 0) {
-					playerX -= 7;
-				}
-				
-				x += dx;
-				y += dy;
-			}
-
 			function enemyCollisionBreakable(bullet, breakable) { // doesnt work
 				if(bullet.y >= breakable.y && bullet.y <= breakable.y+breakableHeight) {
 					if (bullet.x >= breakable.x && bullet.x <= breakable.x+breakableWidth) {
@@ -363,6 +388,7 @@
 				drawBreakableWalls();
 				drawEnemyBullet(); 
 				move();	
+				enemyMovement();
 				playerCollisionEnemy();
 				playerCollisionBreakable(); 
 
@@ -374,6 +400,7 @@
 			}
 
 			main();
+
 			setInterval(function() { 
 				var rc = Math.floor((Math.random() * enemyColumnCount));
 				var rr = Math.floor((Math.random() * enemyRowCount));	
