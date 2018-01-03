@@ -81,6 +81,9 @@
 			var player_image = new Image();
 			player_image.src = "resources/images/space_invader_player.png"
 
+			var hull_image = new Image();
+			hull_image.src = "resources/images/shield.png"
+
 			//enemy objects
 			var enemies = [];
 			for (c = 0; c < enemyColumnCount; c++) {
@@ -94,14 +97,14 @@
 						bulletY: ((r * (enemyHeight + enemyPadding)) + enemyOffsetTop)+playerHeight,
 						temp: bulletY,
 						reloaded: true,
-						direction_left: true //true == left 
+						direction_left: true
 					};
 				}
 			}
 
 			//breakable wall variables
-			var breakableColCount = 13;
-			var breakableRowCount = 2;
+			var breakableColCount = 15;
+			var breakableRowCount = 3;
 			var breakableWidth = 20;
 			var breakableHeight = 10;
 			var breakablePadding = 1;
@@ -151,13 +154,24 @@
 			function drawEnemyBoard() {
 				ctx.font = "16px Consolas";
 				ctx.fillStyle = "black";
-				ctx.fillText("Enemies left: " + enemiesLeft, 10, canvas.height-10); 
+				ctx.fillText("Enemies: " + enemiesLeft, 10, 40); 
 			}
 
 			function drawLivesBoard() {
+				var xPosLives = 90;
+				ctx.beginPath();
 				ctx.font = "16px Consolas";
 				ctx.fillStyle = "black";
-				ctx.fillText("Hull armor: " + hull, 180, canvas.height-10); 
+				ctx.fillText("Shields:", 10, 20);
+				ctx.closePath();
+				for (var i = 0; i < hull; i++) {
+					ctx.beginPath();
+					ctx.drawImage(hull_image, xPosLives, 5);
+					xPosLives += 20;
+				}
+				/*ctx.font = "16px Consolas";
+				ctx.fillStyle = "black";
+				ctx.fillText("Hull armor: " + hull, 180, 20); */
 			}
 
 			function drawPlayerBullet() {
@@ -187,7 +201,7 @@
 				}
 			}
 
-			function enemyMovement() {
+			function enemyMovementHorizontally() {
 				var maxRight = (canvas.width - (enemyWidth * enemyColumnCount)) - enemyPadding * enemyColumnCount;
 				for (c = 0; c < enemyColumnCount; c++) {
 					for (r = 0; r < enemyRowCount; r++) {
@@ -206,6 +220,16 @@
 								enemies[c][r].bulletX = (enemies[c][r].x + enemyWidth/2);
 							}							
 						}
+					}
+				}
+			}
+
+			function enemyMovementVertically() {
+				var max = breakableOffsetTop - (enemyRowCount * enemyHeight) - (enemyRowCount * enemyPadding); 
+				if (enemyOffsetTop < max) enemyOffsetTop += 0.05;
+				for (c = 0; c < enemyColumnCount; c++) {
+					for (r = 0; r < enemyRowCount; r++) {
+						enemies[c][r].bulletY = enemies[c][r].y + enemyHeight;		
 					}
 				}
 			}
@@ -313,7 +337,7 @@
 					for (r = 0; r < breakableRowCount; r++) {
 						if (breakable[c][r].status > 0) {
 							//cluster them into three by removing columns 3,4,8 and 9. Ugly bruteforced solution but it works :D
-							if (c == 3 || c == 4 || c == 8 || c == 9) continue;
+						if (c == 3 ||c == 4 || c == 5 || c == 9 || c == 10 || c == 11) continue;
 							var breakableX = (c * (breakableWidth + breakablePadding)) + breakableOffsetLeft;
 							var breakableY = (r * (breakableHeight + breakablePadding)) + breakableOffsetTop;
 							breakable[c][r].x = breakableX;
@@ -388,7 +412,8 @@
 				drawBreakableWalls();
 				drawEnemyBullet(); 
 				move();	
-				enemyMovement();
+				enemyMovementHorizontally();
+				enemyMovementVertically();
 				playerCollisionEnemy();
 				playerCollisionBreakable(); 
 
