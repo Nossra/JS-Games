@@ -7,13 +7,70 @@
 
 
 	<script>
-		var c = document.getElementById("myCanvas");
-		var ctx = c.getContext("2d");
+		var canvas = document.getElementById("myCanvas");
+		var ctx = canvas.getContext("2d");
 
 		var birdWidth = 20;
 		var birdHeight = 20;
-		var birdX = c.width/5;
-		var birdY = c.height/2;
+		var birdX = canvas.width/5;
+		var birdY = canvas.height/2;
+		var isJumping = false;
+		var birdJump = 80;
+		var isAlive = true;
+
+		var topPipes = [];
+		var bottomPipes = [];
+		var pipeMovementSpeed = 5;
+
+		class Pipe {
+			constructor() {
+				this.width = 30;
+				this.height = 100;
+				this.pipePos = canvas.width/2 + 100;
+				this.paddingright = 100;
+			}	
+		}
+
+		class TopPipe extends Pipe {
+			constructor() {
+				super();
+			}
+
+			draw() {
+				ctx.beginPath();
+				ctx.rect(this.pipePos, 0, this.width, this.height);
+				ctx.fillStyle = "black";
+				ctx.fill();
+				ctx.closePath();
+			}
+		}
+
+		class BottomPipe extends Pipe {
+			constructor() {
+				super();
+			}
+
+			draw() {
+				ctx.beginPath();
+				ctx.rect(this.pipePos, canvas.height - this.height, this.width, this.height);
+				ctx.fillStyle ="black";
+				ctx.fill();
+				ctx.closePath();
+			}
+		}
+
+		function drawPipes() {
+			topPipes.push(new TopPipe());
+			for (p1 = 0; p1 < topPipes.length; p1++) {
+				topPipes[p1].draw();
+			}
+
+			bottomPipes.push(new BottomPipe());
+			for (p2 = 0; p2 < bottomPipes.length; p2++) {
+				bottomPipes[p2].draw();
+			}
+		}
+		
 
 		function drawBird() {
 			ctx.beginPath();
@@ -24,26 +81,64 @@
 		}
 
 		function gravity() {
-
+			var gravity = 5;
+			birdY += gravity
+			if (birdY >= canvas.height-birdHeight/2) {
+				isAlive = false;
+				gameOver();
+			}	
 		}
 
-		function movement() {
-
+		function gameOver() {
+			ctx.beginPath();
+			ctx.font = "100px Consolas";
+			ctx.fillStyle = "black";
+			ctx.fillText("YOU LOST", canvas.width/2-220,canvas.height/2+30);
+			ctx.closePath();
 		}
 
-		function drawPipes() {
+		document.addEventListener("keydown", keyDownHandler, false);
+		document.addEventListener("keyup", keyUpHandler, false);
 
+		function keyUpHandler(e) {
+			if(e.keyCode == 32) {
+				isJumping = false;				
+			} 
 		}
 
+		function keyDownHandler(e) {
+			if(e.keyCode == 32 ) {
+				if (isAlive) {
+					isJumping = true;
+					birdY -= birdJump;	
+					if (birdY < 0) {
+						isAlive = false;						
+					}
+				}												
+			}
+		}
+
+		function pipeMovement() {
+			for (p1 = 0; p1 < topPipes.length; p1++) {
+				topPipes[p1].pipePos -= pipeMovementSpeed;
+			}
+
+			for (p2 = 0; p2 < bottomPipes.length; p2++) {
+				bottomPipes[p2].pipePos -= pipeMovementSpeed;
+			}
+		}
+
+		setInterval(drawPipes, 500);
 		function main() {
+			ctx.clearRect(0,0,canvas.width,canvas.height);
 			drawBird();
-
+			gravity();
+			console.log(topPipes.length);
+			pipeMovement();		
 			requestAnimationFrame(main);
 		}
 
 		main();
-
-
 	</script>
 	</body>
 </html>
