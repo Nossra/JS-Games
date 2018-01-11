@@ -76,11 +76,13 @@
 		}
 
 		function score() {
-			for (p1 = 0; p1 < topPipes.length; p1++) {
-				if (topPipes[p1].pipePos == bird.x) {
-					bird.score++;
-					break;
-				}
+			if (bird.isAlive) {
+				for (p1 = 0; p1 < topPipes.length; p1++) {
+					if (topPipes[p1].pipePos == bird.x) {
+						bird.score++;
+						break;
+					}
+				}	
 			}
 
 			ctx.beginPath();
@@ -108,7 +110,6 @@
 			collision();
 			drawPipes();
 			score();
-			console.log(bird.score);
 			if (bird.isAlive) {
 				bird.gravity();
 				pipeMovement();
