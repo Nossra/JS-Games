@@ -5,7 +5,7 @@ class Bird {
 		this.Height = 20;
 		this.x = canvas.width/5;
 		this.y = canvas.height/2;
-		this.jump = 80;
+		this.jump = 60;
 		this.isAlive = true;	
 		this.score = 0;
 	};
@@ -19,7 +19,7 @@ class Bird {
 	}
 
 	gravity() {
-		var gravity = 2;
+		var gravity = 2.3;
 		bird.y += gravity
 		if (bird.y >= canvas.height-bird.Height/2) {
 			bird.isAlive = false;

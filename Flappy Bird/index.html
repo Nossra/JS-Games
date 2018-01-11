@@ -30,7 +30,7 @@
 			ctx.beginPath();
 			ctx.font = "15px Consolas";
 			ctx.fillStyle = "black";
-			ctx.fillText("GAME OVER", canvas.width/2-50,canvas.height/2);
+			ctx.fillText("GAME OVER", canvas.width/2-40,canvas.height/2);
 			ctx.closePath();
 		}
 
@@ -51,26 +51,28 @@
 			var pipeMovementSpeed = 2;
 
 			for (p1 = 0; p1 < topPipes.length; p1++) {
-				topPipes[p1].pipePos -= pipeMovementSpeed;
-				if (topPipes[p1].pipePos < 0 - topPipes[p1].width) topPipes.shift();
+				topPipes[p1].x -= pipeMovementSpeed;
+				if (topPipes[p1].x < 0 - topPipes[p1].width) topPipes.shift();
 			}
 
 			for (p2 = 0; p2 < bottomPipes.length; p2++) {
-				bottomPipes[p2].pipePos -= pipeMovementSpeed;
-				if (bottomPipes[p2].pipePos < 0 - bottomPipes[p2].width) bottomPipes.shift();
+				bottomPipes[p2].x -= pipeMovementSpeed;
+				if (bottomPipes[p2].x < 0 - bottomPipes[p2].width) bottomPipes.shift();
 			}
 		}
 
 		function collision() {
 			for (p1 = 0; p1 < topPipes.length; p1++) {
-				if (bird.y <= topPipes[p1].height && topPipes[0].pipePos <= bird.x) {
+				if (bird.y <= topPipes[p1].height && topPipes[p1].x <= bird.x && topPipes[p1].x >= bird.x) {
 					bird.isAlive = false;
+					console.log("top collision");
 				}
 			}
 
 			for (p2 = 0; p2 < bottomPipes.length; p2++) {
-				if (bird.y >= (canvas.height - bottomPipes[p2].height) && bottomPipes[0].pipePos <= bird.x) {
+				if (bird.y >= (canvas.height - bottomPipes[p2].height) && bottomPipes[p2].x <= bird.x && bottomPipes[p2].x >= bird.x) {
 					bird.isAlive = false;
+					console.log("bottom collision");
 				}
 			}
 		}
@@ -78,7 +80,7 @@
 		function score() {
 			if (bird.isAlive) {
 				for (p1 = 0; p1 < topPipes.length; p1++) {
-					if (topPipes[p1].pipePos == bird.x) {
+					if (topPipes[p1].x == bird.x) {
 						bird.score++;
 						break;
 					}
@@ -97,8 +99,17 @@
 
 		function createPipes() {
 			setInterval(function() {
-				topPipes.push(new TopPipe());
-				bottomPipes.push(new BottomPipe());
+
+				var jumpArea = 130;
+				var topCorrection = 210;
+				var minTopHeight = 40;
+				var rnd = Math.floor(Math.random() * (canvas.height - topCorrection) + minTopHeight);
+				
+				var bot = canvas.height - jumpArea - rnd;
+				var top = rnd;
+
+				topPipes.push(new TopPipe(top));
+				bottomPipes.push(new BottomPipe(bot));
 			}, 1000);
 		}
 
