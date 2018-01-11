@@ -16,12 +16,10 @@
 		var bottomPipes = [];
 
 		function drawPipes() {
-			topPipes.push(new TopPipe());
 			for (p1 = 0; p1 < topPipes.length; p1++) {
 				topPipes[p1].draw();
 			}
 
-			bottomPipes.push(new BottomPipe());
 			for (p2 = 0; p2 < bottomPipes.length; p2++) {
 				bottomPipes[p2].draw();
 			}
@@ -30,9 +28,9 @@
 		
 		function gameOver() {
 			ctx.beginPath();
-			ctx.font = "100px Consolas";
+			ctx.font = "15px Consolas";
 			ctx.fillStyle = "black";
-			ctx.fillText("YOU LOST", canvas.width/2-220,canvas.height/2+30);
+			ctx.fillText("GAME OVER", canvas.width/2-50,canvas.height/2);
 			ctx.closePath();
 		}
 
@@ -41,46 +39,86 @@
 		function keyDownHandler(e) {
 			if(e.keyCode == 32 ) {
 				if (bird.isAlive) {
-					bird.y -= bird.jump;	
+					bird.y -= bird.jump;
 					if (bird.y < 0) {
 						bird.isAlive = false;	
-						gameOver();			
 					}
 				}												
 			}
 		}
 
 		function pipeMovement() {
-
-			var pipeMovementSpeed = 5;
+			var pipeMovementSpeed = 2;
 
 			for (p1 = 0; p1 < topPipes.length; p1++) {
 				topPipes[p1].pipePos -= pipeMovementSpeed;
-				if (topPipes[p1].pipePos < 0) topPipes.shift();
+				if (topPipes[p1].pipePos < 0 - topPipes[p1].width) topPipes.shift();
 			}
 
 			for (p2 = 0; p2 < bottomPipes.length; p2++) {
 				bottomPipes[p2].pipePos -= pipeMovementSpeed;
-				if (bottomPipes[p2].pipePos < 0) bottomPipes.shift();
+				if (bottomPipes[p2].pipePos < 0 - bottomPipes[p2].width) bottomPipes.shift();
 			}
+		}
+
+		function collision() {
+			for (p1 = 0; p1 < topPipes.length; p1++) {
+				if (bird.y <= topPipes[p1].height && topPipes[0].pipePos <= bird.x) {
+					bird.isAlive = false;
+				}
+			}
+
+			for (p2 = 0; p2 < bottomPipes.length; p2++) {
+				if (bird.y >= (canvas.height - bottomPipes[p2].height) && bottomPipes[0].pipePos <= bird.x) {
+					bird.isAlive = false;
+				}
+			}
+		}
+
+		function score() {
+			for (p1 = 0; p1 < topPipes.length; p1++) {
+				if (topPipes[p1].pipePos == bird.x) {
+					bird.score++;
+					break;
+				}
+			}
+
+			ctx.beginPath();
+			ctx.font = "40px Consolas";
+			ctx.fillStyle = "#33adff";
+			ctx.shadowColor = "white";
+			ctx.shadowOffsetX = 1;
+			ctx.shadowOffsetY = 1;
+			ctx.fillText(bird.score, canvas.width/2, 50);
+			ctx.closePath();
+		}
+
+		function createPipes() {
+			setInterval(function() {
+				topPipes.push(new TopPipe());
+				bottomPipes.push(new BottomPipe());
+			}, 1000);
 		}
 
 		bird = new Bird();
 
-		function main() {
+		function update() {
 			ctx.clearRect(0,0,canvas.width,canvas.height);
-
 			bird.draw();
-			bird.gravity();
-
-
+			collision();
 			drawPipes();
-			pipeMovement();	
-
-			requestAnimationFrame(main);
+			score();
+			console.log(bird.score);
+			if (bird.isAlive) {
+				bird.gravity();
+				pipeMovement();
+			} else {
+				gameOver();
+			} 
 		}
-
-		main();
+		
+		createPipes();
+		setInterval(update, 10);
 	</script>
 	</body>
 </html>

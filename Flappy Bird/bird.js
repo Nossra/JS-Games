@@ -1,12 +1,13 @@
 class Bird {
 
 	constructor() {
-	this.Width = 20;
-	this.Height = 20;
-	this.x = canvas.width/5;
-	this.y = canvas.height/2;
-	this.jump = 80;
-	this.isAlive = true;	
+		this.Width = 20;
+		this.Height = 20;
+		this.x = canvas.width/5;
+		this.y = canvas.height/2;
+		this.jump = 80;
+		this.isAlive = true;	
+		this.score = 0;
 	};
 
 	draw() {
@@ -18,11 +19,10 @@ class Bird {
 	}
 
 	gravity() {
-		var gravity = 5;
+		var gravity = 2;
 		bird.y += gravity
 		if (bird.y >= canvas.height-bird.Height/2) {
 			bird.isAlive = false;
-			gameOver();
 		}	
 	}
 }
