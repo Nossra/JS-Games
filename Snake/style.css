@@ -1,0 +1,39 @@
+.wall {
+	background-color: black;
+	width: 24px;
+	height: 24px;
+}
+
+.space {
+	background-color: white;
+	width: 24px;
+	height: 24px;
+}
+
+.start {
+	background-color: white;
+	width: 24px;
+	height: 24px;
+}
+
+.player {
+	background-color: black;
+	width: 24px;
+	height: 24px;
+}
+
+.food {
+	background-color: grey;
+	width: 24px;
+	height: 24px;
+}
+
+#wrapper {
+	position: absolute; 
+	top: 25%; 
+	left: 5%; 
+	font-family: consolas; 
+	background: white;
+	padding-left: 10px;
+	padding-right: 10px;
+}
